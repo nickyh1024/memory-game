@@ -53,3 +53,23 @@ function checkForMatch() {
         }, 1000);
     }
 }
+
+let timeLeft = 60; 
+const timerElement = document.getElementById('timer');
+
+//start the timer
+const timerInterval = setInterval(() => {
+    timeLeft--;
+    timerElement.textContent = `Time left: ${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        alert('Time is up! Game Over!');
+        disableAllCards();
+    }
+}, 1000);
+
+function disableAllCards() {
+    const allCards = document.querySelectorAll('.card');
+    allCards.forEach(card => card.removeEventListener('click', handleCardClick));
+}
