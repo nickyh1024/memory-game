@@ -73,3 +73,29 @@ function disableAllCards() {
     const allCards = document.querySelectorAll('.card');
     allCards.forEach(card => card.removeEventListener('click', handleCardClick));
 }
+
+let score = 0; 
+const scoreElement = document.getElementById('score');
+
+function checkForMatch() {
+    const [card1, card2] = flippedCards; 
+
+    if (card1.textContent === card2.textContent) {
+        score++;
+        scoreElement.textContent = `Score: ${score}`;
+        flippedCards = []; 
+
+        //check if all pairs are matched
+        if (score === symbols.length) {
+            clearInterval(timerInterval); 
+            alert('Congratulations! You matched all pairs!'); 
+        }
+    }
+    else {
+        setTimeout(() => {
+            card1.classList.remove('flipped');
+            card2.classList.remove('flipped');
+            flippedCards = []; 
+        }, 1000);
+    }
+}
