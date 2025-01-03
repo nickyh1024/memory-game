@@ -49,30 +49,70 @@ function handleCardClick(event) {
     }
 }
 
+//multiplayer mode logic
+let player1Score = 0; 
+let player2Score = 0; 
+let currentPlayer = 1; 
+
+const player1ScoreElement = document.getElementById('player1-score');
+const player2ScoreElement = document.getElementById('player2-score');
+const currentTurnElement = document.getElementById('current-turn');
+
+
 //check if two flipped cards match
 function checkForMatch() {
     const [card1, card2] = flippedCards;
 
+    //if the cards match
     if (card1.textContent === card2.textContent) {
-        //cards match, increase the score and reset flippedCards array
-        score++; 
-        scoreElement.textContent = `Score: ${score}`;
-        flippedCards = []; 
-
-        //check if all pairs are matched
-        if (score === symbols.length) {
-            //stop the timer
-            clearInterval(timerInterval);
-            alert('Congratulations! You matched all pairs!'); 
+        //update scores based on single or two player mode
+        if (typeof currentPlayer !== 'undefined') {
+            //two player mode: award point to current player
+            if (currentPlayer === 1) {
+                player1Score++; 
+                player1ScoreElement.textContent = `Player 1: ${player1Score}`;
+            }
+            else {
+                player2Score++;
+                player2ScoreElement.textContent = `Player 2: ${player2Score}`;
+            }
         }
+        else {
+            //single player mode
+            score++;
+            scoreElement.textContent = `Score: ${score}`;
+        }
+
+        //Clear the flipped cards array for the next turn
+        flippedCards = []; 
     }
+    
+    //if the cards don't match
     else {
-        //cards do not match, flip them back 
         setTimeout(() => {
+            //flip the cards back
             card1.classList.remove('flipped');
             card2.classList.remove('flipped');
             flippedCards = []; 
-        }, 1000); 
+
+            //in multiplayer mode switch to next player
+            if (typeof currentPlayer !== 'undefined') {
+                currentPlayer = currentPlayer === 1 ? 2 : 1; 
+                currentTurnElement.textContent = `Current Turn: Player ${currentPlayer}`;
+            }
+        }, 1000);
+    }
+
+    //two player mode: check if all pairs are matched after every turn
+    if (typeof currentPlayer !== 'undefined' && player1Score + player2Score === symbols.length) {
+        clearInterval(timerInterval); 
+        const winner = 
+            player1Score > player2Score
+                ? 'Player 1 Wins!'
+                : player2Score > player1Score
+                ? 'Player 2 Wins!'
+                : 'It\'s a Tie!'; 
+            alert(winner);
     }
 }
 
@@ -105,3 +145,4 @@ function disableAllCards() {
 //track score
 let score = 0; 
 const scoreElement = document.getElementById('score');
+
