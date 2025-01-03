@@ -49,6 +49,37 @@ function handleCardClick(event) {
     }
 }
 
+//choose single or multiplayer mode
+//elements for mode selection and game container
+const modeSelection = document.getElementById('mode-selection');
+const gameContainer = document.getElementById('game-container');
+
+//buttons to choose mode
+const singlePlayerButton = document.getElementById('single-player-button');
+const multiPlayerButton = document.getElementById('multi-player-button');
+
+//variable to track game mode
+let isSinglePlayer = true; 
+
+//event listener for mode selection
+singlePlayerButton.addEventListener('click', () => {
+    isSinglePlayer = true; 
+    startGame(); 
+});
+
+multiPlayerButton.addEventListener('click', () => {
+    isSinglePlayer = false; 
+    startGame(); 
+});
+
+function startGame() {
+    modeSelection.style.display = 'none';
+    gameContainer.style.display = 'block';
+    resetGame(); 
+}
+
+
+
 //multiplayer mode logic
 let player1Score = 0; 
 let player2Score = 0; 
@@ -58,65 +89,49 @@ const player1ScoreElement = document.getElementById('player1-score');
 const player2ScoreElement = document.getElementById('player2-score');
 const currentTurnElement = document.getElementById('current-turn');
 
-
-//check if two flipped cards match
+// Adjust scoring for single-player mode
 function checkForMatch() {
     const [card1, card2] = flippedCards;
 
-    //if the cards match
     if (card1.textContent === card2.textContent) {
-        //update scores based on single or two player mode
-        if (typeof currentPlayer !== 'undefined') {
-            //two player mode: award point to current player
+        if (isSinglePlayer) {
+            // Update single player score
+            score++;
+            scoreElement.textContent = `Score: ${score}`;
+        } else {
+            // Multiplayer mode logic
             if (currentPlayer === 1) {
-                player1Score++; 
+                player1Score++;
                 player1ScoreElement.textContent = `Player 1: ${player1Score}`;
-            }
-            else {
+            } else {
                 player2Score++;
                 player2ScoreElement.textContent = `Player 2: ${player2Score}`;
             }
         }
-        else {
-            //single player mode
-            score++;
-            scoreElement.textContent = `Score: ${score}`;
-        }
-
-        //Clear the flipped cards array for the next turn
-        flippedCards = []; 
-    }
-    
-    //if the cards don't match
-    else {
+        flippedCards = [];
+    } else {
         setTimeout(() => {
-            //flip the cards back
             card1.classList.remove('flipped');
             card2.classList.remove('flipped');
-            flippedCards = []; 
-
-            //in multiplayer mode switch to next player
-            if (typeof currentPlayer !== 'undefined') {
-                currentPlayer = currentPlayer === 1 ? 2 : 1; 
+            flippedCards = [];
+            if (!isSinglePlayer) {
+                // Multiplayer mode: Switch turn
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
                 currentTurnElement.textContent = `Current Turn: Player ${currentPlayer}`;
             }
         }, 1000);
     }
 
-    //two player mode: check if all pairs are matched after every turn
-    if (typeof currentPlayer !== 'undefined' && player1Score + player2Score === symbols.length) {
-        clearInterval(timerInterval); 
-        const winner = 
-            player1Score > player2Score
-                ? 'Player 1 Wins!'
-                : player2Score > player1Score
-                ? 'Player 2 Wins!'
-                : 'It\'s a Tie!'; 
-            alert(winner);
+    // Check if the game is over
+    if (isSinglePlayer && score === symbols.length) {
+        clearInterval(timerInterval);
+        alert(`Congratulations! You matched all pairs!`);
+    } else if (!isSinglePlayer && player1Score + player2Score === symbols.length) {
+        clearInterval(timerInterval);
+        const winner = player1Score > player2Score ? 'Player 1 Wins!' : player2Score > player1Score ? 'Player 2 Wins!' : 'It\'s a Tie!';
+        alert(winner);
     }
 }
-
-
 
 //Timer
 let timeLeft = 60; 
@@ -145,4 +160,5 @@ function disableAllCards() {
 //track score
 let score = 0; 
 const scoreElement = document.getElementById('score');
+
 
